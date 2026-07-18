@@ -49,3 +49,7 @@ Ray/pitch formulation follows Diego-dcv's technical note §2; per-scroll
 profiles complement iyando's stitched-instance profiles (PHerc 1218/0332);
 lasagna pipeline provenance confirmed by waldkauz; evaluator-shape guidance
 from sean (bruniss).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
