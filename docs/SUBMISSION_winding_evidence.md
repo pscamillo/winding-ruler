@@ -24,7 +24,7 @@ scroll winding geometry (35 scrolls). Headline numbers:
   the materialized signal resolution, not the estimator.
 - **Winding pitch across the Herculaneum collection: median 207 µm, IQR
   206–212, 34/35 scrolls within 190–242 µm** — independent of scroll size
-  (16–113 wraps, r = −0.21) and of scan campaign (2.4–9.4 µm, 78–116 keV).
+  (16–113 wraps, r = −0.21) and of scan campaign (2.2–9.4 µm, 78–116 keV).
   Anchored to the Paris 4 human annotations, the physical pitch is ≈175–180 µm.
 
 ## 1. Motivation
