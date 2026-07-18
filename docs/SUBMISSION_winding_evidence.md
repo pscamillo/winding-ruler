@@ -165,8 +165,9 @@ raw-prediction count (median 60) vs iyando's stitched-instance plateau
 **35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
 within 190–242 µm.** Independent of scroll size (16–113 median wraps,
 r = −0.21) and of scan campaign (2.2–9.4 µm base pixel sizes; 78–116 keV). Anchored to
-the human ground truth: **physical pitch ≈175–180 µm, remarkably uniform
-across the collection.** Per-scroll table in `atlas_collection.csv`; the
+the human ground truth: **physical pitch ≈175–180 µm — strikingly uniform across the
+collection, as seen by this method** (n=35, estimator quantization ±9 µm;
+a stronger universality claim would need finer per-scroll measurement). Per-scroll table in `atlas_collection.csv`; the
 wraps column doubles as a size census of the collection (largest: PHerc0268,
 113 median wraps, also the only pitch outlier at 242 µm).
 
@@ -225,7 +226,7 @@ The measurements suggest that winding evidence is not a binary question of
 "more annotations versus fewer annotations", but a spatial one. Human
 annotations are most valuable where the geometry is least constrained by
 patch evidence, and that value can now be measured. The collection-wide
-winding atlas additionally provides a physically grounded prior for scroll
+winding atlas additionally provides a physically grounded, per-scroll prior for scroll
 geometry that can be used immediately by existing fitting pipelines. Finally,
 the published lasagna signal appears to sit at an interesting boundary: rich
 enough to recover human labels with high accuracy, but insufficient for fully
