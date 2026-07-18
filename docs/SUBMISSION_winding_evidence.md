@@ -1,6 +1,6 @@
 # Winding Evidence, Measured: from annotation value to collection-wide geometry
 
-**Paulo (pscamillo) — July 2026 progress submission**
+**Paulo Sergio Camillo (pscamillo) — July 2026 progress submission**
 Code & data: https://github.com/pscamillo/winding-ruler · All experiments on a single RTX 5070 (12 GB) + streamed open-data.
 
 ---
