@@ -67,6 +67,15 @@ redundant. W2: complete separation (worst (a) > best (c) on both metrics;
 Side observation: in W2, arm (a) trades patch satisfaction for pcl
 satisfaction, suggesting a systematic error in one of the signals there.
 
+**Visual comparison** *(results/gate_overlay_s10946.png, _zoom.png)*: fitted
+spiral overlays for arms (a) and (c) on the same W2 slice are near-identical
+to the eye — pixel-level divergence is 0.6–0.7% per slice, concentrated in
+the patch-sparse inner folds (divergence ranking peaks exactly at the
+patch-poorest slices, s10893–s10999). The +3–5 pp difference lives in local
+sub-visual deviations, which is precisely why train-free measurement matters:
+no single rendered view reveals what the constraint-satisfaction metric
+quantifies.
+
 The result suggests that annotation effort should be allocated spatially
 rather than uniformly. Human winding evidence provides little additional value
 in patch-dense regions, but becomes consistently useful where patch coverage

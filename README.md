@@ -22,6 +22,9 @@ collection-wide measurement of Herculaneum scroll winding geometry.
 
 ![collection atlas](results/winding_atlas_collection.png)
 
+Gate overlays — arms (a) vs (c), near-identical to the eye; the measured
++3–5 pp lives in sub-visual local deviations (`results/gate_overlay_s10946*.png`).
+
 ## Layout
 
     concordance/   pairwise Δw estimators v1–v1.5 + distance-confound test
