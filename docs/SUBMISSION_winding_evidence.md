@@ -86,8 +86,9 @@ simply collecting more of them.
 
 All numbers on virgin collection-level splits, calibration on train only.
 
-- **Unit step (Δw = 1, magnitude + sign): 91–93%** across three virgin seeds
-  and two estimator variants. Sign via umbilicus radial geometry: **100%**
+- **Unit step (Δw = 1, magnitude + sign): 90.9–92.3%** on virgin
+  collection-level splits (two seeds never used during iteration; the
+  exploration seed reached 87–89% and is excluded from the claim). Sign via umbilicus radial geometry: **100%**
   (650/650 test pairs; winding increases outward, learned from train with 100%
   agreement). Calibration k stable (2.77–3.03) across windows and splits.
 - **Distance confound, decomposed:** a distance-only ruler scores 57.1%
@@ -145,7 +146,7 @@ sheets sit ~4.7 lasagna voxels apart. The pipeline that produced them
 
 **Method.** For every sample in open-data with an m7 surface prediction
 (auto-discovered, latest per scroll): stream the level-2 pyramid over HTTP
-(98–830 MB/scroll, 6.2 GB total), 16 slices × 64 radial rays from the
+(6 MB–1.6 GB/scroll, ~16 GB total), 16 slices × 64 radial rays from the
 per-slice mask centroid (no umbilicus exists outside Paris 4), sheets counted
 as mask runs, spacing = gaps between run centers. Converted to physical µm via
 the bucket `metadata.json` (render volume_id parsed from the zarr name →
@@ -163,7 +164,7 @@ raw-prediction count (median 60) vs iyando's stitched-instance plateau
 **Result.** *(figure: winding_atlas_collection.png)*
 **35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
 within 190–242 µm.** Independent of scroll size (16–113 median wraps,
-r = −0.21) and of scan campaign (2.4/8.64/9.36 µm; 78–116 keV). Anchored to
+r = −0.21) and of scan campaign (2.2–9.4 µm base pixel sizes; 78–116 keV). Anchored to
 the human ground truth: **physical pitch ≈175–180 µm, remarkably uniform
 across the collection.** Per-scroll table in `atlas_collection.csv`; the
 wraps column doubles as a size census of the collection (largest: PHerc0268,
