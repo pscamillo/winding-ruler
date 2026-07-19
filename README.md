@@ -58,6 +58,12 @@ profiles complement iyando's stitched-instance profiles (PHerc 1218/0332);
 lasagna pipeline provenance confirmed by waldkauz; evaluator-shape guidance
 from sean (bruniss).
 
+## Tooling note
+
+ I work in Portuguese; English drafting and pair-programming were LLM-assisted, 
+ as in my previous projects. Measurements, decisions, code and numbers are my 
+ own and reproducible from this repo. Nothing here was "thought" by a model.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
