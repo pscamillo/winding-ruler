@@ -161,6 +161,13 @@ sheets (floor estimate) — independently corroborated on PHerc1218: our
 raw-prediction count (median 60) vs iyando's stitched-instance plateau
 (37–46) quantifies what stitching merges/recovers.
 
+**Local variability** *(results/top_band_outward_winding_pitch_1over8.png,
+courtesy of sean/bruniss)*: distance-from-180 µm map along a long Paris 4
+segment, illustrating why pitch is an aggregate/initialization quantity and
+not a per-point segmentation rule — the per-spacing spread (our p25–p75:
+8.5–18 level-voxels) makes direct winding-point assignment unreliable, which
+is exactly the failure mode the three generators in §4 hit.
+
 **Result.** *(figure: winding_atlas_collection.png)*
 **35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
 within 190–242 µm.** Independent of scroll size (16–113 median wraps,
