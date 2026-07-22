@@ -55,6 +55,10 @@ restricting to scrolls with at least 20 wraps per ray gives r = -0.11. The
 claim holds for scrolls; it does not extend to fragments small enough that
 the median spacing rests on a handful of runs per ray.
 
+The same paragraph names PHerc0268 as "the only pitch outlier at 242 µm".
+That is wrong in both versions: the outlier was PHercMANBp at 307 µm (278 µm
+corrected), and PHerc0268 sits inside the distribution at 207 µm corrected.
+
 
 **Paulo Sergio Camillo (pscamillo) — July 2026 progress submission**
 Code & data: https://github.com/pscamillo/winding-ruler · All experiments on a single RTX 5070 (12 GB) + streamed open-data.
