@@ -36,7 +36,7 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   `atlas_collection.csv` is kept as the v1 record. See
   `atlas/build_atlas_v2.py` for the derivation.
 
-![collection atlas](results/winding_atlas_collection.png)
+![collection atlas](results/winding_atlas_collection_v2.png)
 
 **Gate overlays** — arms (a) vs (c) on the same W2 slice, near-identical to
 the eye; the measured +3–5 pp lives in sub-visual local deviations

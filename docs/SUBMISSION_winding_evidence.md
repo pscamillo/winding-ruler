@@ -1,5 +1,61 @@
 # Winding Evidence, Measured: from annotation value to collection-wide geometry
 
+---
+
+## Errata — 22 July 2026
+
+Two claims in this document are wrong and are corrected here. The body below
+is left as submitted, so the record is intact.
+
+**1. Collection pitch (§ summary, § atlas).** The reported median of 207 µm
+(IQR 206–212, 34/35 within 190–242) was measured at pyramid level 2. That
+level was chosen for streaming cost, on the assumption that 4–8 voxels between
+sheets is enough resolution to count crossings along a ray. It is not: at that
+spacing the estimator merges adjacent sheets and inflates the pitch.
+
+Rerunning all 36 scrolls at level 1 lowers the measured pitch by 10.3% on
+average (36/36 negative, sd 2.6), with wrap counts rising and span preserved —
+the signature of sheets being resolved, not of the gap being mis-measured.
+Convergence was checked on PHercMANBp, the coarsest scroll in the collection:
+levels 1 and 0 agree exactly, so level 1 is at the limit.
+
+Corrected figures: **median 187.3 µm, IQR 181.5–193.4, 35/36 within
+160–210 µm**, same single outlier (PHercMANBp). The declared method bias of
++17% against the human anchor was almost entirely this artefact: it drops to
++4.1% at level 1, and on Paris 4 itself — the only scroll with human
+annotations — the level-1 estimate is 182.4 µm, +1.3% against the ≈180 µm
+anchor. The homogeneity claim is unaffected.
+
+Data: `results/atlas_collection_v2.csv`. Derivation: `atlas/build_atlas_v2.py`.
+The v1 file is kept as `results/atlas_collection.csv`.
+
+This correction was prompted by @iyando's independent cross-check on
+PHerc1218, and by the fusion mechanism he identified before it was measured.
+
+**2. Attribution of the generation bottleneck (§ summary, §7).** The document
+attributes the residual to materialized signal resolution and pre-registers a
+test: regenerate at 2× finer scaledown, with success declared as Δw=1 ≥96%.
+
+The experiment was run. It fails, with margin. Unit-step concordance is 92.3%
+on both grids (delta 0, seed spread ~1.4 pp), and the ensemble labeller gives
+93.0% coarse against 88.3% fine at Δw=1 over 20 seeds — the finer field is
+slightly worse, not better. Stratifying by local winding spacing, the coarse
+grid is already at 99.4% in the densest quartile, so there is no headroom for
+finer signal to buy; the residual error sits in Δw=1 pairs that are far apart.
+
+Signal resolution is therefore not the bottleneck. The pre-registered route —
+a constraint generator fed by a finer version of this signal family — is
+closed.
+
+**3. Scope of the size-independence claim.** With the corrected figures the
+correlation between pitch and scroll size is r = -0.45 across all 36 entries,
+against r = -0.21 in v1. It is driven by a single point: PHercMANBp, a
+fragment with 8 median wraps per ray. Excluding it gives r = -0.25, and
+restricting to scrolls with at least 20 wraps per ray gives r = -0.11. The
+claim holds for scrolls; it does not extend to fragments small enough that
+the median spacing rests on a handful of runs per ray.
+
+
 **Paulo Sergio Camillo (pscamillo) — July 2026 progress submission**
 Code & data: https://github.com/pscamillo/winding-ruler · All experiments on a single RTX 5070 (12 GB) + streamed open-data.
 
@@ -174,6 +230,8 @@ is exactly the failure mode the three generators in §4 hit.
 **Result.**
 
 ![collection-wide winding pitch atlas](../results/winding_atlas_collection.png)
+
+*Figure as submitted (level 2, median 207 µm). Corrected version: `results/winding_atlas_collection_v2.png` — see errata.*
 
 **35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
 within 190–242 µm.** Independent of scroll size (16–113 median wraps,
