@@ -4,7 +4,7 @@
 
 ## Errata — 22 July 2026
 
-Two claims in this document are wrong and are corrected here. The body below
+Three claims in this document need correcting, listed below. The body text
 is left as submitted, so the record is intact.
 
 **1. Collection pitch (§ summary, § atlas).** The reported median of 207 µm
