@@ -231,7 +231,11 @@ is exactly the failure mode the three generators in §4 hit.
 
 ![collection-wide winding pitch atlas](../results/winding_atlas_collection.png)
 
-*Figure as submitted (level 2, median 207 µm). Corrected version: `results/winding_atlas_collection_v2.png` — see errata.*
+*As submitted: pyramid level 2, median 207 µm.*
+
+![collection-wide winding pitch atlas, corrected](../results/winding_atlas_collection_v2.png)
+
+*Corrected (errata item 1): pyramid level 1, median 187.3 µm. Same data source and estimator; only the pyramid level differs.*
 
 **35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
 within 190–242 µm.** Independent of scroll size (16–113 median wraps,
