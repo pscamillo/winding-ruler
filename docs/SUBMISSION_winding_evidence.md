@@ -237,7 +237,7 @@ is exactly the failure mode the three generators in §4 hit.
 
 *Corrected (errata item 1): pyramid level 1, median 187.3 µm. Same data source and estimator; only the pyramid level differs.*
 
-**35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
+*(v1 figures — corrected in errata item 1.)* **35 scrolls with full statistics: median pitch 207 µm, IQR 206–212, 34/35
 within 190–242 µm.** Independent of scroll size (16–113 median wraps,
 r = −0.21) and of scan campaign (2.2–9.4 µm base pixel sizes; 78–116 keV). Anchored to
 the human ground truth: **physical pitch ≈175–180 µm — strikingly uniform across the
