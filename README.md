@@ -79,7 +79,7 @@ from sean (bruniss).
 
 I work in Portuguese; English drafting and pair-programming were LLM-assisted, 
 as in my previous projects. Measurements, experimental decisions, code, and all 
-reported numbers are my own and reproducible from this repo. Nothing here was "thought" by a model.
+reported numbers are my own and reproducible from this repo.
 
 ## License
 
