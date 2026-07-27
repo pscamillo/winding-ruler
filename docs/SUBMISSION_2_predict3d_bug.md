@@ -3,7 +3,7 @@
 **Paulo Sergio Camillo (pscamillo) — July 2026 progress submission, second entry.**
 Code & data: https://github.com/pscamillo/winding-ruler ·
 Issue: [ScrollPrize/villa#1183](https://github.com/ScrollPrize/villa/issues/1183) ·
-Fix (by another contributor): [#1192](https://github.com/ScrollPrize/villa/pull/1192)
+Fix (by another contributor): [#1192](https://github.com/ScrollPrize/villa/pull/1192) — closed unmerged; the issue was closed by [#1252](https://github.com/ScrollPrize/villa/pull/1252), see §8
 
 ---
 
@@ -214,3 +214,34 @@ the experiment possible and asked the question about dense regions that led to
 the stratified table in §5. @iyando's independent cross-check on PHerc1218
 prompted a separate correction to the July atlas, published as an errata in the
 same repository.
+
+## 8. Outcome (2026-07-27)
+
+[#1183](https://github.com/ScrollPrize/villa/issues/1183) was closed as
+completed by @hendrikschilling. The fix shipped in
+[#1252](https://github.com/ScrollPrize/villa/pull/1252) — a partial rewrite of
+`cos_preprocess`, 2,397 insertions and 351 deletions across 11 files — rather
+than as the targeted patch in #1192. His stated reason was that the bug
+followed from design decisions in that part of the implementation, so he
+rewrote it instead of patching it. #1192 was closed unmerged.
+
+That does not change §7. @NanokodasKarolis reproduced the reported failure at
+Z 5040–5055, wrote a correct fix with regression coverage, and measured it as
+non-regressive (1,823 s against 1,956 s on equivalent H100 pods) — on a first
+contribution to the repository. The rewrite superseded the patch; it did not
+fault it.
+
+One detail is worth recording, because it bears directly on the caution in
+§6. During review of #1252 the automated reviewer flagged a *second* silent
+data-loss mechanism in the new code: a z tile row skipped for lack of input
+chunks leaves the rolling band initialised past the flush origin, and the
+whole-range check then discards a populated suffix instead of writing it —
+silent holes again, by a different route, in the very rewrite that closed the
+first one. It was addressed before merge, with an invariant on rolling-buffer
+use and a regression test named for the case
+(`test_predict3d_sparse_skipped_z_prefix_flushes_later_suffix`). The instance
+was fixed; the class survived long enough to reappear once. That is the
+argument for keeping a content-level check in the pipeline rather than
+trusting any single fix.
+
+`qa_holescan` has not been re-run against the rewrite.
