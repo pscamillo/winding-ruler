@@ -225,7 +225,13 @@ than as the targeted patch in #1192. His stated reason was that the bug
 followed from design decisions in that part of the implementation, so he
 rewrote it instead of patching it. #1192 was closed unmerged.
 
-That does not change §7. @NanokodasKarolis reproduced the reported failure at
+The rewrite reaches further than the reported failure. Announcing the merge,
+the maintainer noted that bbox inference — rerunning with an arbitrary crop
+bbox — now works seamlessly as well. So a bug report about missing z-slices
+resolved into a partial rewrite that also restored an unrelated capability.
+
+That does not change §7. @NanokodasKarolis (@textualsphynx on Discord)
+reproduced the reported failure at
 Z 5040–5055, wrote a correct fix with regression coverage, and measured it as
 non-regressive (1,823 s against 1,956 s on equivalent H100 pods) — on a first
 contribution to the repository. The rewrite superseded the patch; it did not
