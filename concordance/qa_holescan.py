@@ -1,32 +1,42 @@
 #!/usr/bin/env python3
 """
-qa_holescan v2 - detect silent data loss in predict3d / lasagna OME-Zarr output.
+qa_holescan v3 - detect silent data loss in predict3d / lasagna OME-Zarr output.
 
-Two distinct failure modes exist:
+Failure modes:
 
-  A. elided chunk   - chunk files ABSENT      (v1 caught this: file counts)
-  B. partial chunk  - chunk files PRESENT,    (v1 was blind to this)
+  A. elided chunk   - chunk files ABSENT      (v1: file counts)
+  B. partial chunk  - chunk files PRESENT,    (v2: cross-channel support)
                       part of the z-slices zero
 
 Mode B is the one reported in ScrollPrize/villa#1183: 16 of the 32 z-slices
-inside a chunk come out zero, every chunk file present, all tiles reported
-as processed, no warning. Counting files cannot see it.
+inside a chunk come out zero, every chunk file present, no warning.
 
-The hard part of detecting mode B is separating "zero because the writer
-dropped it" from "zero because there is no papyrus there" - most of a scroll
-volume is legitimately empty. This tool uses two discriminators that need no
-threshold and no per-scroll calibration:
+v3 adds three things, after running v2 on masked full volumes produced
+false positives (reported by waldkauz, unrolling-vc3d, 28 Jul 2026):
 
-  1. CROSS-CHANNEL. grad_mag, nx, ny and cos share support: where there is
-     material, all of them carry data. If one channel is empty on a z-slice
-     where another is not, that is a defect, not anatomy.
+  1. MASK FILTER (waldkauz). A mask is z-invariant; a writer hole is
+     z-localized. Zeros inside a suspect range that were already zero just
+     outside it are standing footprint (mask or anatomy); only zeros that
+     appear inside the range count as the hole. Handles volumes where the
+     mask is applied to some channels but not others, which breaks the
+     bare cross-channel invariant. Border connectivity of the new-zero
+     area is reported as secondary evidence.
 
-  2. WITHIN-CHUNK. A chunk whose file exists should not contain a mix of
-     empty and non-empty z-slices. Legitimate mask boundaries do occur at
-     the extremities of the volume, so those are reported separately.
+  2. CONTEXT FILTER (waldkauz). A suspect range must have nonzero data in
+     the same channel both before and after it in z. A range that runs to
+     the volume end is mask or anatomy, not a writer hole.
 
-IMPORTANT: run this on RAW output, before any normalization. z-scoring moves
-raw zeros to some nonzero value and the evidence disappears (see villa#1173).
+  3. PHYSICAL-ZERO CLASS. grad_mag can legitimately reach 0 where winding
+     spacing is too large for the patch to represent (waldkauz). Signature
+     from villa#1183 separates the classes: writer defects are rectangular,
+     chunk-row aligned, sharp-edged, and empty across ALL columns at once.
+     Physical zeros are spatially partial and do not respect chunk
+     boundaries. Column-partial zeros are reported as LOCAL, informational,
+     and do not fail the gate.
+
+Discriminators still need no threshold and no per-scroll calibration.
+
+IMPORTANT: run this on RAW output, before any normalization (villa#1173).
 
 Usage
     qa_holescan.py MANIFEST.lasagna.json [--sample N] [--full] [--quiet]
@@ -38,6 +48,9 @@ Usage
 Exit code 0 = PASS, 1 = FAIL. Intended as a gate before consuming output:
 
     qa_holescan.py out.lasagna.json || exit 1
+
+Only DEFECT findings fail the gate. MASKED and LOCAL findings are printed
+for information.
 """
 
 import argparse
@@ -49,6 +62,8 @@ import numpy as np
 import zarr
 
 CHANNELS_EXPECTED = ("grad_mag", "nx", "ny", "cos")
+FLOOD_DS = 8          # downsample factor for the border flood fill
+MASK_BORDER_FRAC = 0.99  # zero area border-connected above this => MASKED
 
 
 def chunk_index(zpath):
@@ -98,60 +113,191 @@ def sample_columns(shared, n):
     return [cols[int(i * step)] for i in range(n)]
 
 
+def border_connected_fraction(zslice):
+    """Fraction of the zero area of a 2D slice connected to its border.
+
+    Pure numpy flood fill on a downsampled copy. Good enough to classify
+    mask (border-connected) against interior holes; not meant to be exact.
+    """
+    m = (zslice[::FLOOD_DS, ::FLOOD_DS] == 0)
+    if not m.any():
+        return 1.0
+    conn = np.zeros_like(m)
+    conn[0, :] = m[0, :]
+    conn[-1, :] = m[-1, :]
+    conn[:, 0] = m[:, 0]
+    conn[:, -1] = m[:, -1]
+    for _ in range(max(m.shape)):
+        grown = conn.copy()
+        grown[1:, :] |= conn[:-1, :]
+        grown[:-1, :] |= conn[1:, :]
+        grown[:, 1:] |= conn[:, :-1]
+        grown[:, :-1] |= conn[:, 1:]
+        grown &= m
+        if (grown == conn).all():
+            break
+        conn = grown
+    return conn.sum() / m.sum()
+
+
+def channel_has_data(group, z_from, z_to, cols, oc):
+    """True if the channel has any nonzero voxel in [z_from, z_to) over cols."""
+    depth = group["array"].shape[0]
+    z_from = max(0, z_from)
+    z_to = min(depth, z_to)
+    if z_from >= z_to:
+        return None  # range does not exist: volume end
+    for (cy, cx) in cols:
+        block = np.asarray(group["array"][z_from:z_to,
+                                          cy * oc:(cy + 1) * oc,
+                                          cx * oc:(cx + 1) * oc])
+        if (block != 0).any():
+            return True
+    return False
+
+
 def scan(groups, n_sample, full):
-    """Return (findings, rows_checked). A finding is one contiguous z range."""
-    names = [c for c in CHANNELS_EXPECTED if c in groups] or list(groups)
-    rows = sorted(set.intersection(*(set(groups[c]["index"]) for c in names)))
-    if not rows:
-        return [], []
+    """Return (findings, checked, unchecked).
 
-    oc = groups[names[0]]["chunk"]
-    depth = groups[names[0]]["array"].shape[0]
-    findings = []
+    Channels are partitioned by grid signature (shape, chunk): the
+    cross-channel invariant only holds between channels on the same grid.
+    cos often lives on its own grid (--cos-scaledown), so it is scanned
+    with its peers when it has any, and reported as unchecked when alone.
 
-    for row in rows:
-        shared = set.intersection(*(groups[c]["index"][row] for c in names))
-        if not shared:
+    Finding classes:
+      DEFECT - channel empty across ALL sampled columns on z-slices where
+               another channel has data, interior zeros, data on both sides
+      MASKED - zeros match the standing footprint, or range at a volume end
+      LOCAL  - column-partial cross-channel zeros (physical-zero candidates)
+    """
+    sigs = {}
+    for name, g in groups.items():
+        key = (tuple(g["array"].shape), g["chunk"])
+        sigs.setdefault(key, []).append(name)
+
+    findings, checked, unchecked = [], [], []
+
+    for key, part in sigs.items():
+        names = [c for c in CHANNELS_EXPECTED if c in part] or sorted(part)
+        if len(names) < 2:
+            unchecked.append(names)
             continue
-        cols = sorted(shared) if full else sample_columns(shared, n_sample)
+        rows = sorted(set.union(*(set(groups[c]["index"]) for c in names)))
+        if not rows:
+            unchecked.append(names)
+            continue
 
-        z0 = row * oc
-        z1 = min(z0 + oc, depth)
-        # nonzero voxel count per (channel, z) over the sampled columns
-        counts = {c: np.zeros(z1 - z0, dtype=np.int64) for c in names}
-        for (cy, cx) in cols:
+        oc = groups[names[0]]["chunk"]
+        depth = groups[names[0]]["array"].shape[0]
+        checked.append((names, rows))
+
+        for row in rows:
+            shared = set().union(*(groups[c]["index"].get(row, set())
+                                   for c in names))
+            if not shared:
+                continue
+            cols = sorted(shared) if full else sample_columns(shared, n_sample)
+
+            z0 = row * oc
+            z1 = min(z0 + oc, depth)
+            nz = z1 - z0
+            ncols = len(cols)
+
+            # nonzero voxel count per (channel, z, column)
+            counts = {c: np.zeros((nz, ncols), dtype=np.int64) for c in names}
+            for j, (cy, cx) in enumerate(cols):
+                for c in names:
+                    block = np.asarray(
+                        groups[c]["array"][z0:z1,
+                                           cy * oc:(cy + 1) * oc,
+                                           cx * oc:(cx + 1) * oc])
+                    counts[c][:, j] = (block != 0).sum(axis=(1, 2))
+
+            # per-slice, per-channel: empty over ALL columns (writer signature)
+            # vs empty on SOME columns where another channel has data there
+            row_total = sum(counts[c] for c in names)          # (nz, ncols)
+            all_empty = np.zeros(nz, dtype=bool)
+            culprits = [[] for _ in range(nz)]
+            local_cells = {c: 0 for c in names}
+
             for c in names:
-                block = np.asarray(
-                    groups[c]["array"][z0:z1,
-                                       cy * oc:(cy + 1) * oc,
-                                       cx * oc:(cx + 1) * oc])
-                counts[c] += (block != 0).sum(axis=(1, 2))
+                others = row_total - counts[c]
+                full_miss = (counts[c].sum(axis=1) == 0) & (others.sum(axis=1) > 0)
+                all_empty |= full_miss
+                for i in np.nonzero(full_miss)[0]:
+                    culprits[i].append(c)
+                # column-partial: this channel zero in a cell where others aren't,
+                # on slices that are NOT full-miss (those are counted above)
+                part = (counts[c] == 0) & (others > 0)
+                part[full_miss, :] = False
+                local_cells[c] += int(part.sum())
 
-        # a z-slice is suspect when at least one channel is empty on it
-        # while at least one other channel is not
-        total = sum(counts[c] for c in names)
-        empty_any = np.zeros(z1 - z0, dtype=bool)
-        culprits = [[] for _ in range(z1 - z0)]
-        for c in names:
-            miss = (counts[c] == 0) & (total > 0)
-            empty_any |= miss
-            for i in np.nonzero(miss)[0]:
-                culprits[i].append(c)
+            for start, end in contiguous(np.nonzero(all_empty)[0]):
+                who = sorted({c for i in range(start, end + 1) for c in culprits[i]})
+                f = {
+                    "row": row,
+                    "z0": z0 + start,
+                    "z1": z0 + end,
+                    "n": end - start + 1,
+                    "of": nz,
+                    "channels": who,
+                    "cols": ncols,
+                    "oc": oc,
+                    "class": "DEFECT",
+                    "why": "",
+                }
 
-        for start, end in contiguous(np.nonzero(empty_any)[0]):
-            who = sorted({c for i in range(start, end + 1) for c in culprits[i]})
-            findings.append({
-                "row": row,
-                "z0": z0 + start,
-                "z1": z0 + end,
-                "n": end - start + 1,
-                "of": z1 - z0,
-                "channels": who,
-                "cols": len(cols),
-                "edge": row == rows[0] or row == rows[-1],
-            })
+                # context filter (waldkauz): data before AND after in the same
+                # channel, looking across row boundaries; volume end => MASKED
+                g = groups[who[0]]
+                before = channel_has_data(g, f["z0"] - 3, f["z0"], cols, oc)
+                after = channel_has_data(g, f["z1"] + 1, f["z1"] + 4, cols, oc)
+                if before is None or after is None:
+                    f["class"], f["why"] = "MASKED", "range touches volume end"
+                elif not before or not after:
+                    f["class"], f["why"] = "MASKED", "no data on one side"
+                else:
+                    # mask filter: a mask is z-invariant, a writer hole is
+                    # z-localized. Zeros inside the range that were already
+                    # zero just outside it are standing footprint (mask or
+                    # anatomy); zeros that appear only inside the range are
+                    # the hole.
+                    mid = (f["z0"] + f["z1"]) // 2
+                    ref = np.abs(np.asarray(g["array"][max(0, f["z0"] - 3):f["z0"]])).max(axis=0)
+                    sl = np.asarray(g["array"][mid])
+                    extra = (sl == 0) & (ref != 0)
+                    denom = max(1, int((ref != 0).sum()))
+                    frac_extra = extra.sum() / denom
+                    if frac_extra < 0.01:
+                        f["class"] = "MASKED"
+                        f["why"] = "zeros match the standing footprint outside the range"
+                    else:
+                        bc = border_connected_fraction(np.where(extra, 0, 1))
+                        f["why"] = (f"{frac_extra:.0%} of populated footprint newly "
+                                    f"zero inside the range")
+                        if bc < 1.0:
+                            f["why"] += f"; new-zero area {bc:.0%} border-connected"
 
-    return findings, rows
+                findings.append(f)
+                # mode A annotation: culprit chunk files absent on disk
+                for c in who:
+                    have = groups[c]["index"].get(row, set())
+                    absent = sum(1 for col in cols if col not in have)
+                    if absent:
+                        f["why"] = (f["why"] + "; " if f["why"] else "") + \
+                            f"{absent}/{len(cols)} chunk files absent ({c})"
+
+            n_local = sum(local_cells.values())
+            if n_local:
+                findings.append({
+                    "row": row, "z0": z0, "z1": z1 - 1, "n": 0, "of": nz,
+                    "channels": [c for c in names if local_cells[c]],
+                    "cols": ncols, "oc": oc, "class": "LOCAL",
+                    "why": f"{n_local} column-partial zero cells "
+                           f"(physical-zero candidates, not chunk-shaped)",
+                })
+
+    return findings, checked, unchecked
 
 
 def contiguous(idx):
@@ -197,32 +343,49 @@ def main():
             print(f"  {name:10s} shape {g['array'].shape} chunk {g['chunk']} "
                   f"rows {rows[0]}-{rows[-1]}")
 
-    findings, rows = scan(groups, args.sample, args.full)
-    oc = groups[list(groups)[0]]["chunk"]
+    findings, checked, unchecked = scan(groups, args.sample, args.full)
 
-    real = [f for f in findings if not f["edge"]]
-    edge = [f for f in findings if f["edge"]]
+    defects = [f for f in findings if f["class"] == "DEFECT"]
+    masked = [f for f in findings if f["class"] == "MASKED"]
+    local = [f for f in findings if f["class"] == "LOCAL"]
 
     if not args.quiet:
         mode = "full scan" if args.full else f"{args.sample} columns/row"
-        print(f"\nchecked rows {rows[0]}-{rows[-1]} ({mode})")
+        for names, rows in checked:
+            print(f"\nchecked {'+'.join(names)} rows {rows[0]}-{rows[-1]} ({mode})")
+        for names in unchecked:
+            print(f"\nnot cross-checkable: {'+'.join(names)} "
+                  f"(single channel on its grid)")
+        if not checked:
+            print("\nno grid with two or more channels to cross-check")
 
-    for f in real:
-        note = boundary_note(f["z0"], f["z1"], oc)
-        print(f"  HOLE  z {f['z0']}-{f['z1']}  ({f['n']} of {f['of']} slices "
-              f"in row {f['row']})  empty: {', '.join(f['channels'])}"
-              + (f"\n        {note}" if note else ""))
+    for f in defects:
+        note = boundary_note(f["z0"], f["z1"], f["oc"])
+        if f["why"]:
+            note = f"{note}; {f['why']}" if note else f["why"]
+        print(f"  HOLE   z {f['z0']}-{f['z1']}  ({f['n']} of {f['of']} slices "
+              f"in row {f['row']}, all {f['cols']} columns)  "
+              f"empty: {', '.join(f['channels'])}"
+              + (f"\n         {note}" if note else ""))
 
-    for f in edge:
-        print(f"  edge  z {f['z0']}-{f['z1']}  (row {f['row']}, volume "
-              f"extremity - likely mask, not a defect)")
+    if not args.quiet:
+        for f in masked:
+            print(f"  masked z {f['z0']}-{f['z1']}  (row {f['row']}: {f['why']})")
+        for f in local:
+            print(f"  local  row {f['row']}: {f['why']} "
+                  f"channels: {', '.join(f['channels'])}")
 
-    if real:
-        print(f"\nVERDICT: FAIL - {len(real)} suspect range(s). "
+    if defects:
+        print(f"\nVERDICT: FAIL - {len(defects)} defect range(s). "
               f"Do not consume this output before checking.")
         return 1
 
-    print("\nVERDICT: PASS" + (f" ({len(edge)} edge range(s) ignored)" if edge else ""))
+    extras = []
+    if masked:
+        extras.append(f"{len(masked)} masked")
+    if local:
+        extras.append(f"{len(local)} local")
+    print("\nVERDICT: PASS" + (f" ({', '.join(extras)} range(s) noted)" if extras else ""))
     return 0
 
 
