@@ -23,9 +23,14 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   20 seeds; unit-step concordance 92.3% on both grids). The bottleneck is
   elsewhere.
 
-- **Winding pitch across the collection: median 187.3 µm (IQR 181.5–193.4),
-  35/36 scrolls within 160–210 µm**, independent of scroll size and scan
-  campaign. Human-anchored physical pitch ≈175–180 µm.
+- **Winding pitch across the collection: a distribution, not a constant.**
+  Per-scroll medians center at 187.3 µm (IQR of medians 181.5–193.4;
+  35/36 scrolls between 160 and 210 µm), independent of scroll size and
+  scan campaign — but pitch varies widely inside each scroll (Paris 4
+  alone spans 134–259 µm between quartiles), so no single number
+  describes a scroll. The per-scroll λ table is the usable artefact;
+  the scalar medians exist to cross-check methods against each other.
+  Human-anchored physical pitch ≈175–180 µm.
 
   *Revised 22 Jul 2026.* The original figures (207 µm, IQR 206–212, 34/35
   within 190–242) were measured at pyramid level 2, which merges adjacent
