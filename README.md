@@ -41,8 +41,9 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   `atlas_collection.csv` is kept as the v1 record. See
   `atlas/build_atlas_v2.py` for the derivation.
 
-  *Independent confirmation, 29 Jul 2026.* alyalya, checking pitch against
-  their own ground-truth meshes while working on winding constraints,
+  *Independent confirmation, 29 Jul 2026.* Aleksei Drobkov
+  ([alyalya](https://github.com/AlexeyDrobkovStrikesBack)), checking
+  pitch against his own ground-truth meshes while working on winding constraints,
   reports PHerc1203 at 192 µm and Paris 4 at 182 µm, the latter +1.3%
   against the human anchor. The level-1 entries here read 192.3 and 182.4.
   Two scrolls agreeing to a decimal from a different measurement path:
