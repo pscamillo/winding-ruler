@@ -45,16 +45,14 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   ([AlexeyDrobkovStrikesBack](https://github.com/AlexeyDrobkovStrikesBack)
   on GitHub, alyalya1404 on Discord) first reported agreement using
   these atlas values as his anchor, caught the circularity himself,
-  retracted it, and redid both scrolls independently: Paris 4 at
-  ~180 µm/turn straight from the human winding annotations (Theil-Sen,
-  scale fixed independently of any pitch value) and PHerc1203 at
+  retracted it, and redid both scrolls independently: Paris 4 initially at ~180 µm/turn (Theil-Sen on the winding annotations; retracted by him on 31 Jul as unstable across voxel choices - his harmonic-safe remeasurement reads ~145 µm, under investigation here, see below) and PHerc1203 at
   170-190 µm from radial layer counts on the BM18 volume, cross-checked
   by unrolled-length plausibility. The level-1 entries here read 182.4
   and 192.3, consistent with both. He also supplied the structural note
   this debate was missing: one wrap is one papyrus sheet (~150-200 µm);
   the finer 10-40 µm structure is intra-sheet, so naive per-layer
   counts over-split delaminated sheets. Raw measurements to be linked
-  here when he sends them.
+  here when he sends them. *Open question, 31 Jul:* his delamination-immune methods (autocorrelation with 2x-harmonic rejection, mode of consecutive-sheet gaps, hand check) read Paris 4 at ~145 µm, ~25% below the 182.4 here; his proposed mechanism is merged-sheet undercount inflating every winding-count-based method. Flagged by him as a question, not a verdict; the discriminating test (mode vs median of the gap distribution on this project's own data) is being run.
 
 ![collection atlas](results/winding_atlas_collection_v2.png)
 
