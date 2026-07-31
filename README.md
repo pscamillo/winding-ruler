@@ -41,14 +41,20 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   `atlas_collection.csv` is kept as the v1 record. See
   `atlas/build_atlas_v2.py` for the derivation.
 
-  *Independent confirmation, 29 Jul 2026.* Aleksei Drobkov
-  ([AlexeyDrobkovStrikesBack](https://github.com/AlexeyDrobkovStrikesBack) on GitHub, alyalya1404 on Discord), checking
-  pitch against his own ground-truth meshes while working on winding constraints,
-  reports PHerc1203 at 192 µm (under revalidation by him, 30 Jul) and Paris 4 at 182 µm, the latter +1.3%
-  against the human anchor. The level-1 entries here read 192.3 and 182.4.
-  Two scrolls agreeing to a decimal from a different measurement path:
-  their figures come from GT meshes, these from periodicity in published
-  surface predictions. They have moved to the per-scroll λ table.
+  *Independent measurements, 30 Jul 2026.* Aleksei Drobkov
+  ([AlexeyDrobkovStrikesBack](https://github.com/AlexeyDrobkovStrikesBack)
+  on GitHub, alyalya1404 on Discord) first reported agreement using
+  these atlas values as his anchor, caught the circularity himself,
+  retracted it, and redid both scrolls independently: Paris 4 at
+  ~180 µm/turn straight from the human winding annotations (Theil-Sen,
+  scale fixed independently of any pitch value) and PHerc1203 at
+  170-190 µm from radial layer counts on the BM18 volume, cross-checked
+  by unrolled-length plausibility. The level-1 entries here read 182.4
+  and 192.3, consistent with both. He also supplied the structural note
+  this debate was missing: one wrap is one papyrus sheet (~150-200 µm);
+  the finer 10-40 µm structure is intra-sheet, so naive per-layer
+  counts over-split delaminated sheets. Raw measurements to be linked
+  here when he sends them.
 
 ![collection atlas](results/winding_atlas_collection_v2.png)
 
