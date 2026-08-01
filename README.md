@@ -30,7 +30,9 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   alone spans 134–259 µm between quartiles), so no single number
   describes a scroll. The per-scroll λ table is the usable artefact;
   the scalar medians exist to cross-check methods against each other.
-  Human-anchored physical pitch ≈175–180 µm.
+  Human-anchored count-based pitch ≈175–180 µm; the physical
+  fundamental sits lower — ~145 µm on Paris 4 (see *Resolved, 1 Aug*
+  below).
 
   *Revised 22 Jul 2026.* The original figures (207 µm, IQR 206–212, 34/35
   within 190–242) were measured at pyramid level 2, which merges adjacent
