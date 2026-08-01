@@ -54,7 +54,9 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   this debate was missing: one wrap is one papyrus sheet (~150-200 µm);
   the finer 10-40 µm structure is intra-sheet, so naive per-layer
   counts over-split delaminated sheets. Raw measurements to be linked
-  here when he sends them. *Resolved, 1 Aug:* the discriminating test (mode vs median of
+  here when he sends them.
+
+  *Resolved, 1 Aug:* the discriminating test (mode vs median of
   adjacent-sheet gaps on this project's own GT) confirms his mechanism:
   mode 130-140 µm with secondary humps at the 2x/3x delamination
   harmonics. The values in this table are mixture medians of that
