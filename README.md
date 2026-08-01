@@ -68,7 +68,7 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   per-scroll table remains the right artefact. Every entry here needs
   the mode-vs-median treatment before being read as a fundamental;
   until then, read these values as what they are. Full record:
-  constraint-gauge GATE0 A26; his raw numbers and overlays archived
+  [constraint-gauge GATE0](https://github.com/pscamillo/constraint-gauge/blob/main/GATE0_criteria.md), addendum A26; his raw numbers and overlays archived
   there.
 
 *Values in the figure below are mixture medians of the sheet-gap
