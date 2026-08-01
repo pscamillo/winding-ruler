@@ -69,6 +69,10 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   constraint-gauge GATE0 A26; his raw numbers and overlays archived
   there.
 
+*Values in the figure below are mixture medians of the sheet-gap
+distribution — reproducible periodicity in the surface predictions,
+not physical fundamentals (see* Resolved, 1 Aug *above).*
+
 ![collection atlas](results/winding_atlas_collection_v2.png)
 
 **Gate overlays** — arms (a) vs (c) on the same W2 slice, near-identical to
