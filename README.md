@@ -52,7 +52,20 @@ collection-wide measurement of Herculaneum scroll winding geometry.
   this debate was missing: one wrap is one papyrus sheet (~150-200 µm);
   the finer 10-40 µm structure is intra-sheet, so naive per-layer
   counts over-split delaminated sheets. Raw measurements to be linked
-  here when he sends them. *Open question, 31 Jul:* his delamination-immune methods (autocorrelation with 2x-harmonic rejection, mode of consecutive-sheet gaps, hand check) read Paris 4 at ~145 µm, ~25% below the 182.4 here; his proposed mechanism is merged-sheet undercount inflating every winding-count-based method. Flagged by him as a question, not a verdict; the discriminating test (mode vs median of the gap distribution on this project's own data) is being run.
+  here when he sends them. *Resolved, 1 Aug:* the discriminating test (mode vs median of
+  adjacent-sheet gaps on this project's own GT) confirms his mechanism:
+  mode 130-140 µm with secondary humps at the 2x/3x delamination
+  harmonics. The values in this table are mixture medians of that
+  distribution - reproducible periodicity in the surface predictions,
+  internally consistent, but NOT physical fundamentals. His
+  harmonic-safe methods place the Paris 4 fundamental near ~145 µm
+  (CT autocorrelation 150, mesh mode 140, hand 143), and his
+  five-scroll table (~145-230) confirms pitch genuinely varies, so the
+  per-scroll table remains the right artefact. Every entry here needs
+  the mode-vs-median treatment before being read as a fundamental;
+  until then, read these values as what they are. Full record:
+  constraint-gauge GATE0 A26; his raw numbers and overlays archived
+  there.
 
 ![collection atlas](results/winding_atlas_collection_v2.png)
 
